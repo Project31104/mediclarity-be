@@ -17,11 +17,26 @@ const connectDB = require("./config/db");
 
 const app = express();
 
+
+const allowedOrigins = [
+  "https://mediclarity-fe.vercel.app",
+  "http://localhost:5173",
+];
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
-  }),
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Origin not allowed by CORS"));
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
 );
+
 app.use(express.json());
 app.use("/api/patients", patientRoutes);
 app.use("/api/medical-records", medicalRecordRoutes);
